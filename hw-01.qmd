@@ -1,10 +1,14 @@
 ---
 title: "HW 01"
-author: "INSERT YOUR NAME HERE"
+author: "Matt Osterhoudt"
 format: 
   html:
     embed-resources: true
 toc: true
+execute: 
+  warning: false
+  message: false
+  error: false
 ---
 
 ## 0 - Setup
@@ -14,7 +18,8 @@ if (!require("pacman"))
   install.packages("pacman")
 
 # use this line for installing/loading
-# pacman::p_load() 
+ pacman::p_load(tidyverse,
+                palmerpenguins) 
 
 devtools::install_github("tidyverse/dsbox")
 ```
@@ -28,7 +33,15 @@ devtools::install_github("tidyverse/dsbox")
 ## 2 - NYC marathon winners
 
 ```{r label-me-2}
+data("penguins")
+penguins |>
+  glimpse()
+```
 
+```{r}
+penguins |>
+  ggplot(aes(x = bill_length_mm, y = bill_depth_mm, color = species)) + 
+  geom_point()
 ```
 
 ## 3 - US counties
