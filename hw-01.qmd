@@ -19,29 +19,36 @@ if (!require("pacman"))
 
 # use this line for installing/loading
  pacman::p_load(tidyverse,
-                palmerpenguins) 
-
+                palmerpenguins,
+                here) 
+ 
 devtools::install_github("tidyverse/dsbox")
+
+
+
+
+
 ```
 
 ## 1 - Road traffic accidents in Edinburgh
 
 ```{r label-me-1}
 
+accidents_data <- read_csv(here("data", "accidents.csv"))
+head(accidents_data)
+
+
+
+
 ```
 
 ## 2 - NYC marathon winners
 
 ```{r label-me-2}
-data("penguins")
-penguins |>
-  glimpse()
+
 ```
 
-```{r}
-penguins |>
-  ggplot(aes(x = bill_length_mm, y = bill_depth_mm, color = species)) + 
-  geom_point()
+```{}
 ```
 
 ## 3 - US counties
