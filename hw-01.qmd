@@ -35,7 +35,25 @@ devtools::install_github("tidyverse/dsbox")
 ```{r label-me-1}
 
 accidents_data <- read_csv(here("data", "accidents.csv"))
-head(accidents_data)
+glimpse(accidents_data) #Quick glimpse of the data
+
+#Converts day of week (monday, friday, etc.) to a weekend or weekday
+accidents_data <- accidents_data |>
+  mutate(weekday_or_weekend = 
+           ifelse(day_of_week %in% c("Saturday", "Sunday"), "Weekend", "Weekday"))
+
+#Density plot
+ggplot(accidents_data, aes(x = time, fill = severity)) +
+  geom_density(alpha = 0.5, adjust = 1) +
+  facet_wrap(~weekday_or_weekend, nrow=2) +
+  scale_fill_manual(values = c("Fatal" = "#9370DB", "Serious" = "#87CEEB", "Slight" = "#FFFFE0")) +
+  theme_minimal() +
+  labs(
+    x = "Time of Day",
+    y = "Density",
+    title = "Number of Accidents throughout the day\nBy day of week and severity"
+  )
+
 
 
 
@@ -48,7 +66,7 @@ head(accidents_data)
 
 ```
 
-```{}
+```         
 ```
 
 ## 3 - US counties
