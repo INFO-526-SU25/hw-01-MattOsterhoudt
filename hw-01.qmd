@@ -20,14 +20,20 @@ if (!require("pacman"))
 # use this line for installing/loading
  pacman::p_load(tidyverse,
                 palmerpenguins,
-                here) 
+                here,
+                cowgrid) 
  
 devtools::install_github("tidyverse/dsbox")
 
+ggplot2::theme_set(ggplot2::theme_minimal(base_size = 14))
 
-
-
-
+knitr::opts_chunk$set(
+  fig.width = 7,
+  fig.asp = .618,
+  fig.retina = 3,
+  fig.align = "center",
+  dpi = 300
+)
 ```
 
 ## 1 - Road traffic accidents in Edinburgh
@@ -35,7 +41,7 @@ devtools::install_github("tidyverse/dsbox")
 ```{r label-me-1}
 
 accidents_data <- read_csv(here("data", "accidents.csv"))
-glimpse(accidents_data) #Quick glimpse of the data
+##glimpse(accidents_data) #Quick glimpse of the data
 
 #Converts day of week (monday, friday, etc.) to a weekend or weekday
 accidents_data <- accidents_data |>
@@ -64,7 +70,81 @@ ggplot(accidents_data, aes(x = time, fill = severity)) +
 
 ```{r label-me-2}
 
+
+library("cowplot") #I used this library for plot_grid() to stack the plots.
+
+nyc_marathon_data <- read_csv(here("data", "nyc_marathon.csv"))
+
+#Quick glimpse of the data
+###glimpse(nyc_marathon_data) 
+
+# Code for the histogram
+histogram = ggplot(nyc_marathon_data, aes(x = time)) + 
+  geom_histogram(binwidth = 75)+
+  labs(
+    x = "Marathon Completion Time"
+  )
+
+#Code for the boxplot, removing the extra axis info so it looks cleaner stacked with histogram
+boxplot = ggplot(nyc_marathon_data, aes(x = time)) + 
+  geom_boxplot()+
+  labs(title = "A. Boxplot and Histogram")+
+  theme_minimal(base_size = 14)+
+  theme(axis.line=element_blank(),
+        axis.ticks=element_blank(),
+        axis.title.y=element_blank(),
+        axis.title.x=element_blank(),
+        axis.text.y=element_blank())
+
+#This function stacks the boxplot and histogram on top of each other
+plot_grid(boxplot, histogram, align = "v", axis = "l", ncol = 1, heights = c(1, 3))
+
+##Answer to Part A: The histogram gives a better visual of the distribution of runners that completed the marathon. We can see a more clear visual represenatation of the completion times. The boxplot, however, gives us a more clear indication of the median points, outliers, and quartiles. The boxplot lacks the visualization of the distrubution, while the histogram lacks the statistical information such as median, outliers, and quartiles.
+
+
+#Part B Code
+ggplot(nyc_marathon_data, aes(x = time_hrs, y = division, fill = division)) +
+  geom_boxplot()+
+  scale_fill_manual(values = c("Men" = "Blue", "Women" = "Red"))+
+  theme_minimal(base_size = 14)+
+  labs(title = "Men vs Women Marathon Times",
+       x = "Marathon Time by Hour",
+       y = "Division by Gender")
+
+##Answer to Part B: Compared to women, men have a distribution range of marathon times. Men also have a smaller quartile range, and on average, a faster completion time. Women have more outlier points.
+
+#Part C Code
+ggplot(nyc_marathon_data, aes(x = time_hrs, y = division, fill = division)) +
+  geom_boxplot(show.legend = FALSE,
+               fill = "gray")+
+  theme(axis.title.y=element_blank())+
+  theme_minimal(base_size = 14)+
+  labs(title = "Men vs Women Marathon Times",
+       x = "Marathon Time by Hour"
+  )
+  
+       
+##Answer to Part C: The separation by Gender already speaks for itself a bit. I removed the legend and y-axis label. I also decided to remove the color and just use a default gray fill, although I suppose I could have kept the blue vs red/pink in. Those are sort of historical default "gender" color separators. My changes affect the data-to-ink ratio by cutting down a lot of excess colors and information in order to simplyify the visual.
+
+#Part D Code
+ggplot(nyc_marathon_data, aes(x = year, y = time_hrs, color = division, shape = division))+
+  geom_point()+
+  geom_line(aes(group = division))+ ##necessary to connect the points
+  scale_color_manual(values = c("Men" = "Blue", "Women" = "Red"))+
+  labs(title = "Marathon Times by Year",
+      x = "Year",
+      y = "Marathon Time",
+      color = "Division",
+      shape = "Division")+
+  theme_minimal(base_size = 14)
+  
+
+##Answer to Part D: What is more visible in this plot compared to the others is the trend. We can visualize the marathon times by year, especially noting the marathon times improving significantly since 1970.
+       
+
 ```
+
+\
 
 ```         
 ```
