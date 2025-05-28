@@ -263,7 +263,53 @@ ggplot(county, aes(x = homeownership, y = poverty))+
 
 ## 4 - Rental apartments in SF
 
-```{r}
+```{r Question 4}
+
+credit_data <- read_csv(here("data", "credit.csv"))
+#Glimpse of Data
+#glimpse(credit_data)
+
+#Part A: There appears to be a relationship between credit card balance and income. Generally, higher income means credit card balance will also be higher. This relationship varies a little depending on the student/married factors. Let's start with students. Students tend to have a higher credit card balance than non-students, so that shifts the starting point of the slope. Students also appear to have a slightly flatter slope. Non-married has a little steeper slope compared to married, but married income caps out higher.
+
+
+#Note: I used this website to figure out how to label the axis: https://datavizpyr.com/dollar-format-for-axis-labels-with-ggplot2/
+ggplot(credit_data, aes(x = income, y = balance, color = student, shape = student))+
+  geom_point(size = 2, alpha = .5)+
+  geom_smooth(method = "lm", aes(color = student), se = FALSE)+
+  theme_gray()+
+  theme(legend.position = "none")+
+  facet_grid(rows = vars(student), cols = vars (married), label = labeller(
+                student = c("No" = "student: No", "Yes" = "student: Yes"),
+                married = c("No" = "married: No", "Yes" = "married: Yes"))) +
+  labs(
+    x = "Income",
+    y = "Credit Card Balance" )+
+  scale_x_continuous(labels = scales::dollar_format(scale = 1000))+
+  scale_y_continuous(labels = scales::dollar_format())
+
+#Part B: I think that these factors are useful indicators. For example, I would expect a student to have a higher credit card balance compared to a non-student. I would also expect married income to cap out much higher compared to non-married incomes.
+
+#Part C
+
+#First, make the new column and calculate the variable
+credit_data$credit_utilization = credit_data$balance / credit_data$limit
+
+ggplot(credit_data, aes(x = income, y = credit_utilization, color = student, shape = student))+
+  geom_point(size = 2, alpha = .5)+
+  geom_smooth(method = "lm", aes(color = student), se = FALSE)+
+  theme_gray()+
+  theme(legend.position = "none")+
+  facet_grid(rows = vars(student), cols = vars (married), label = labeller(
+                student = c("No" = "student: No", "Yes" = "student: Yes"),
+                married = c("No" = "married: No", "Yes" = "married: Yes"))) +
+  labs(
+    x = "Income",
+    y = "Credit Utilization" )+
+  scale_x_continuous(labels = scales::dollar_format(scale = 1000))+
+  scale_y_continuous(labels = scales::dollar_format())
+
+
+#Part D: This new plot implies that credit utilization is affected by marital status and student status, not simply just income. Students tend to use their credit more, even with higher levels of income. Non-students tend to utilize less credit, but slightly increase the use with higher income. Married credit use seems to be a lot more flat across the board compared to non-married credit, which has more variance but is also dependent on student vs non-student status.
 
 ```
 
