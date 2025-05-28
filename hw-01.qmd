@@ -22,6 +22,8 @@ if (!require("pacman"))
                 palmerpenguins,
                 here,
                 cowgrid) 
+install.packages("openintro")
+library(openintro)
  
 devtools::install_github("tidyverse/dsbox")
 
@@ -38,7 +40,7 @@ knitr::opts_chunk$set(
 
 ## 1 - Road traffic accidents in Edinburgh
 
-```{r label-me-1}
+```{r Question 1}
 
 accidents_data <- read_csv(here("data", "accidents.csv"))
 ##glimpse(accidents_data) #Quick glimpse of the data
@@ -68,7 +70,7 @@ ggplot(accidents_data, aes(x = time, fill = severity)) +
 
 ## 2 - NYC marathon winners
 
-```{r label-me-2}
+```{r Question 2}
 
 
 library("cowplot") #I used this library for plot_grid() to stack the plots.
@@ -76,9 +78,9 @@ library("cowplot") #I used this library for plot_grid() to stack the plots.
 nyc_marathon_data <- read_csv(here("data", "nyc_marathon.csv"))
 
 #Quick glimpse of the data
-###glimpse(nyc_marathon_data) 
+#glimpse(nyc_marathon_data) 
 
-# Code for the histogram
+#Code for the histogram
 histogram = ggplot(nyc_marathon_data, aes(x = time)) + 
   geom_histogram(binwidth = 75)+
   labs(
@@ -99,7 +101,7 @@ boxplot = ggplot(nyc_marathon_data, aes(x = time)) +
 #This function stacks the boxplot and histogram on top of each other
 plot_grid(boxplot, histogram, align = "v", axis = "l", ncol = 1, heights = c(1, 3))
 
-##Answer to Part A: The histogram gives a better visual of the distribution of runners that completed the marathon. We can see a more clear visual represenatation of the completion times. The boxplot, however, gives us a more clear indication of the median points, outliers, and quartiles. The boxplot lacks the visualization of the distrubution, while the histogram lacks the statistical information such as median, outliers, and quartiles.
+#Answer to Part A: The histogram gives a better visual of the distribution of runners that completed the marathon. We can see a more clear visual represenatation of the completion times. The boxplot, however, gives us a more clear indication of the median points, outliers, and quartiles. The boxplot lacks the visualization of the distrubution, while the histogram lacks the statistical information such as median, outliers, and quartiles.
 
 
 #Part B Code
@@ -111,7 +113,7 @@ ggplot(nyc_marathon_data, aes(x = time_hrs, y = division, fill = division)) +
        x = "Marathon Time by Hour",
        y = "Division by Gender")
 
-##Answer to Part B: Compared to women, men have a distribution range of marathon times. Men also have a smaller quartile range, and on average, a faster completion time. Women have more outlier points.
+#Answer to Part B: Compared to women, men have a distribution range of marathon times. Men also have a smaller quartile range, and on average, a faster completion time. Women have more outlier points.
 
 #Part C Code
 ggplot(nyc_marathon_data, aes(x = time_hrs, y = division, fill = division)) +
@@ -124,7 +126,7 @@ ggplot(nyc_marathon_data, aes(x = time_hrs, y = division, fill = division)) +
   )
   
        
-##Answer to Part C: The separation by Gender already speaks for itself a bit. I removed the legend and y-axis label. I also decided to remove the color and just use a default gray fill, although I suppose I could have kept the blue vs red/pink in. Those are sort of historical default "gender" color separators. My changes affect the data-to-ink ratio by cutting down a lot of excess colors and information in order to simplyify the visual.
+#Answer to Part C: The separation by Gender already speaks for itself a bit. I removed the legend and y-axis label. I also decided to remove the color and just use a default gray fill, although I suppose I could have kept the blue vs red/pink in. Those are sort of historical default "gender" color separators. My changes affect the data-to-ink ratio by cutting down a lot of excess colors and information in order to simplyify the visual.
 
 #Part D Code
 ggplot(nyc_marathon_data, aes(x = year, y = time_hrs, color = division, shape = division))+
@@ -139,7 +141,7 @@ ggplot(nyc_marathon_data, aes(x = year, y = time_hrs, color = division, shape = 
   theme_minimal(base_size = 14)
   
 
-##Answer to Part D: What is more visible in this plot compared to the others is the trend. We can visualize the marathon times by year, especially noting the marathon times improving significantly since 1970.
+#Answer to Part D: What is more visible in this plot compared to the others is the trend. We can visualize the marathon times by year, especially noting the marathon times improving significantly since 1970.
        
 
 ```
@@ -151,6 +153,118 @@ ggplot(nyc_marathon_data, aes(x = year, y = time_hrs, color = division, shape = 
 
 ## 3 - US counties
 
+```{r Question 3}
+
+#Setup
+#This filters out the N/A values to remove any warning messages
+county <- county
+  filter(county,!is.na(homeownership), !is.na(poverty)) 
+
+
+#Part A: The following code attempts to create a boxplot with categorical data of smoking ban in the x-axis and numerical pop in the y-axis. It also tries to layer this with a scatterplot of numerical median income data, and categorical median education data. This code will output a plot but it does not really work correctly nor does it make sense. First off, geom_point will create a scatterplot, which is expecting two continuous variables. median_edu is not a continuous variable, so this will cause issues. I think the boxplot is fine, but combining it with a scatterplot does not make sense and will lead to a confusing graphic. 
+suppressWarnings(
+  ggplot(county) +
+    geom_point(aes(x = median_edu, y = median_hh_income))+
+    geom_boxplot(aes(x = smoking_ban, y = pop2017)) 
+)
+#Part B: The second plot (the one where the median_edu columns are stacked vertically) makes it much easier to compare. The spacing is better which makes it easier to read. It's also easier to read the charts up from down rather than side to side. This means the placement of the faceting variable is dependant on what we want to compare. In this case, we want to see the poverty levels across people from different median education levels, so placing the median education levels in vertical columns makes the most sense.
+suppressWarnings(
+  ggplot(county %>% filter(!is.na(median_edu))) + 
+    geom_point(aes(x = homeownership, y = poverty)) + 
+    facet_grid(median_edu ~ .)
+)
+suppressWarnings(
+  ggplot(county %>% filter(!is.na(median_edu))) + 
+    geom_point(aes(x = homeownership, y = poverty)) + 
+    facet_grid(. ~ median_edu)
+)
+
+#Part C
+
+#Plot A:
+ggplot(county, aes(x = homeownership, y = poverty))+
+  geom_point(size = 2)+
+  theme_gray()+
+  labs(title = "Plot A",
+       x = "homeownership",
+       y = "poverty"
+  )
+
+#Plot B:
+ggplot(county, aes(x = homeownership, y = poverty))+
+  geom_point(size = 2)+
+  geom_smooth(method = "lm", formula = y ~ poly(x, 2), color = "blue", se = FALSE)+
+  theme_gray()+
+  labs(title = "Plot B",
+       x = "homeownership",
+       y = "poverty"
+  )
+
+#Plot C:
+ggplot(county, aes(x = homeownership, y = poverty, line = metro))+
+  geom_point()+
+  geom_smooth(se = FALSE, color = "green")+
+  labs(title = "Plot C",
+       x = "homeownership",
+       y = "poverty"
+  )
+
+#Plot D:
+ggplot(county, aes(x = homeownership, y = poverty, line = metro))+
+  geom_smooth(se = FALSE, color = "blue")+
+  geom_point()+
+  labs(title = "Plot D",
+       x = "homeownership",
+       y = "poverty"
+  )
+
+#Plot E:
+ggplot(county, aes(x = homeownership, y = poverty, line = metro))+
+  geom_point(aes(color = metro), size = 2)+
+  geom_smooth(aes(linetype = metro), se = FALSE)+
+  scale_linetype_manual(values = c("no" = "solid", "yes" = "dashed"))+
+  theme_gray()+
+  labs(title = "Plot E",
+       x = "homeownership",
+       y = "poverty"
+  )
+
+
+#Plot F:
+ggplot(county, aes(x = homeownership, y = poverty, line = metro))+
+  geom_point(aes(color = metro), size = 2)+
+  geom_smooth(aes(color = metro), se = FALSE)+
+  theme_gray()+
+  labs(title = "Plot F",
+       x = "homeownership",
+       y = "poverty"
+  )
+
+#Plot G:
+ggplot(county, aes(x = homeownership, y = poverty))+
+  geom_point(aes(color = metro), size = 2)+
+  geom_smooth(method = "lm", formula = y ~ poly(x, 2), color = "blue", se = FALSE)+
+  theme_gray()+
+  labs(title = "Plot G",
+       x = "homeownership",
+       y = "poverty"
+  )
+
+
+#Plot H:
+ggplot(county, aes(x = homeownership, y = poverty))+
+  geom_point(aes(color = metro), size = 2)+
+  theme_gray()+
+  labs(title = "Plot H",
+       x = "homeownership",
+       y = "poverty"
+  )
+```
+
 ## 4 - Rental apartments in SF
+
+```{r}
+
+```
 
 ## 5 - Napoleon’s march.
