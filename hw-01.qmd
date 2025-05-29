@@ -306,7 +306,7 @@ ggplot(credit_data, aes(x = income, y = credit_utilization, color = student, sha
     x = "Income",
     y = "Credit Utilization" )+
   scale_x_continuous(labels = scales::dollar_format(scale = 1000))+
-  scale_y_continuous(labels = scales::dollar_format())
+  scale_y_continuous(labels = scales::percent_format())
 
 
 #Part D: This new plot implies that credit utilization is affected by marital status and student status, not simply just income. Students tend to use their credit more, even with higher levels of income. Non-students tend to utilize less credit, but slightly increase the use with higher income. Married credit use seems to be a lot more flat across the board compared to non-married credit, which has more variance but is also dependent on student vs non-student status.
