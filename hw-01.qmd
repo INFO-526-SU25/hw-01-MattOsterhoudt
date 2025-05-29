@@ -314,3 +314,8 @@ ggplot(credit_data, aes(x = income, y = credit_utilization, color = student, sha
 ```
 
 ## 5 - Napoleon’s march.
+
+```{r Question 5}
+
+
+```
