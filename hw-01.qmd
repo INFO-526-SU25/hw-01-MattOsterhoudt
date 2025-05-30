@@ -317,5 +317,92 @@ ggplot(credit_data, aes(x = income, y = credit_utilization, color = student, sha
 
 ```{r Question 5}
 
+#I primarily used http://euclid.psych.yorku.ca/www/psy6135/tutorials/Minard.html
+#I followed their guide and made a few small tweaks. Each plot shown is the process that leads to the final one. Refer to the last plot for the finished product.
 
+#Loading all necessary packages
+library(ggplot2)
+library(scales)        # additional formatting for scales
+library(grid)          # combining plots
+library(gridExtra)     # combining plots
+library(dplyr)         # tidy data manipulations
+napoleon_data <- read_rds(here("data", "napoleon.rds"))
+
+
+#Converting to data frames
+str(napoleon_data)
+names(napoleon_data)
+troops_df <- napoleon_data$troops
+cities_df <- napoleon_data$cities
+temp_df <- napoleon_data$temperatures
+
+#Initially plots the path of the surviving troops.
+#ggplot(troops_df, aes(long, lat))+
+  #geom_path(aes(size = survivors))
+
+#I changed the colors a bit on this graphic.
+breaks <- c(1, 2, 3) * 10^5 #Sets our own break size scaling
+ggplot(troops_df, aes(long, lat)) +
+        geom_path(aes(size = survivors, colour = direction, group = group),
+                  lineend="round") +
+    scale_size("Survivors", range = c(1,10), #c(0.5, 15),
+               breaks=breaks, labels=scales::comma(breaks)) +
+    scale_color_manual("Direction", 
+                       values = c("#6ee78d", "#edd579"), 
+                       labels=c("Advance", "Retreat")) 
+
+plot_troops <- last_plot() #New trick I learned. This plots the last graph ran.
+
+if (!require(ggrepel)) {install.packages("ggrepel"); require(ggrepel)} #package necessary for overlap 
+library(ggrepel)
+plot_troops + 
+    geom_point(data = cities_df)+
+  geom_text_repel(data = cities_df, aes(label = city)) #Ensures labels and points do not overlap
+
+plot_troops_cities <- last_plot() #Saving this version
+plot_troops_cities
+
+#This code appends the ° to temperaure
+temp_df <- temp_df %>% 
+    mutate(label = paste0(temp, "° ", date))
+head(temp_df$label)
+
+#Plots the temperature and long data. Like before, the text repel is so that points do not overlap.
+ggplot(temp_df, aes(long, temp)) +
+    geom_path(color="grey", size=1.5) +
+    geom_point(size=1) +
+  geom_text_repel(aes(label=label), size=2.5)
+
+plot_temp <- last_plot() #saves the plot temp
+
+
+#Places both grids vertically. Needs to be adjusted as done below.
+#grid.arrange(plot_troops_cities, plot_temp)
+
+#This code limits the x axis so that it matches temperature. It also removes the legends, color, and keeps the theme completely void.
+plot_troops_cities +
+  coord_cartesian(xlim = c(24, 38)) +
+  guides(color = FALSE, size = FALSE) +
+  theme_void()
+
+#New x1 value for grid.arrange
+plot_troops_cities_fixed <- last_plot()  
+
+#Removes the x axis value, keeps the theme simple, cleans a few elements, and matches the xlim value with the troops/cities graph
+plot_temp + 
+  coord_cartesian(xlim = c(24, 38)) +
+  labs(x = NULL, y="Temperature") + 
+  theme_bw() +
+  theme(panel.grid.major.x = element_blank(),
+        panel.grid.minor.x = element_blank(),
+        panel.grid.minor.y = element_blank(),
+        axis.text.x = element_blank(), axis.ticks = element_blank(),
+        panel.border = element_blank())
+
+#New x2 value for grid.arrange
+plot_temp_fixed <- last_plot()
+
+#Finally arranges the grid with our final, updated plots. I added a title because I think that titles are important to have so that the audience knows what they are seeing. I also changed the color scheme a bit. I did not like the black retreat with black city text, so I chnaged that. I also used green because I like to think of green as more of a "advancement" color.
+grid.arrange(plot_troops_cities_fixed, plot_temp_fixed, nrow=2, heights=c(3.5, 1.2),top = "Napoleon's March")
+grid.rect(width = .99, height = .99, gp = gpar(lwd = 2, col = "gray", fill = NA))
 ```
